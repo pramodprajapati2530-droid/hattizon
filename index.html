@@ -1,68 +1,75 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<title>HATTIZON - Buy & Sell Digital Assets</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HATTIZON - Buy & sell Digital Assets | Escrow Protected</title>
 <style>
 body{font-family:Arial;background:#f5f5f5;margin:0}
-.header{background:#000;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
-.logo{font-weight:900;font-size:22px} .logo span{color:#4ade80}
-.btn{padding:8px 16px;border-radius:20px;border:1px solid #fff;background:#000;color:#fff}
-.btn-green{background:#4ade80;color:#000;border:none;font-weight:700}
-.grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:15px;max-width:1000px;margin:auto}
-@media(min-width:700px){.grid8{grid-template-columns:repeat(8,1fr)}}
-.cat{background:#fff;padding:12px;border-radius:12px;text-align:center;box-shadow:0 2px 5px #ddd}
-.cat b{font-size:12px;display:block} .cat p{font-size:10px;color:gray;margin:0}
-.list{display:grid;grid-template-columns:1fr;gap:12px;padding:15px;max-width:1000px;margin:auto}
-@media(min-width:700px){.list{grid-template-columns:repeat(3,1fr)}}
-.card{background:#fff;border-radius:12px;padding:14px;border-left:4px solid #4ade80;box-shadow:0 2px 8px #ddd}
-.price{font-weight:900;font-size:18px} .buy{background:#000;color:#fff;border:none;padding:6px 14px;border-radius:20px}
-.tag{font-size:10px;background:#eee;padding:3px 8px;border-radius:10px}
+header{background:#000;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header h1{margin:0;color:#ffcc00}
+.btn{background:#ffcc00;color:#000;padding:10px 18px;border:none;border-radius:6px;font-weight:bold;cursor:pointer}
+.container{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.card img{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#eee}
+.price{color:green;font-weight:bold;font-size:18px}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:20}
+.modal-content{background:#fff;padding:20px;border-radius:12px;width:90%;max-width:400px;max-height:90vh;overflow:auto}
+input,select,textarea{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo">HATTIZON<span>.com</span></div>
-<div><button class="btn">Login</button> <button class="btn btn-green">+ Sell</button></div>
-</div>
+<header>
+<h1>HATTIZON</h1>
+<button class="btn" onclick="openModal()">+ Sell Asset</button>
+</header>
 
-<div class="grid8">
-<div class="cat">📱<b>Android App</b><p>12k+ Listed</p></div>
-<div class="cat">▶️<b>YouTube</b><p>8k+ Listed</p></div>
-<div class="cat">📸<b>Instagram</b><p>15k+ Listed</p></div>
-<div class="cat">👍<b>Facebook</b><p>6k+ Listed</p></div>
-<div class="cat">🌐<b>Domain</b><p>20k+ Listed</p></div>
-<div class="cat">💻<b>Website</b><p>10k+ Listed</p></div>
-<div class="cat">🏢<b>Business</b><p>2k+ Listed</p></div>
-<div class="cat">🚀<b>Big Company</b><p>500+ Listed</p></div>
-</div>
+<div class="container" id="listings"></div>
 
-<h3 style="max-width:1000px;margin:auto;padding:0 15px">🔥 Trending - Escrow Protected</h3>
-
-<div class="list">
-<div class="card">
-<span class="tag">YouTube Channel</span> <span style="color:green;font-size:12px;float:right">✓ Verified</span>
-<h4>500K Gaming YouTube Channel</h4>
-<p style="color:gray;font-size:13px">Monthly: ₹35k/mo | Escrow Safe</p>
-<div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹1,80,000</span><button class="buy">Buy via Escrow</button></div>
-</div>
-
-<div class="card">
-<span class="tag">Android App</span> <span style="color:green;font-size:12px;float:right">✓ Verified</span>
-<h4>Food Delivery App - 10k Downloads</h4>
-<p style="color:gray;font-size:13px">Monthly: ₹50k/mo | 10 Crore Ready</p>
-<div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹2,50,000</span><button class="buy">Buy via Escrow</button></div>
-</div>
-
-<div class="card">
-<span class="tag">Instagram Page</span>
-<h4>1M Fashion Insta Page</h4>
-<p style="color:gray;font-size:13px">Monthly: ₹20k/mo | Auto Scaling ON</p>
-<div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹1,20,000</span><button class="buy">Buy via Escrow</button></div>
+<div class="modal" id="sellModal">
+<div class="modal-content">
+<h2>List Your Asset</h2>
+<input id="title" placeholder="Title - ex: 500K Gaming YouTube">
+<select id="category"><option>YouTube Channel</option><option>Instagram Page</option><option>Website / App</option><option>Domain</option></select>
+<input id="followers" placeholder="Followers / Revenue - ex: 500K Subs, $200/mo">
+<input id="price" placeholder="Price - ex: 180000" type="number">
+<input id="image" placeholder="Image Link (optional) - paste imgur link">
+<textarea id="desc" placeholder="Description"></textarea>
+<input id="whatsapp" placeholder="Your WhatsApp Number">
+<button class="btn" style="width:100%" onclick="addListing()">List Now - Go Live</button>
+<button onclick="closeModal()" style="width:100%;margin-top:8px;padding:10px;border:none;background:#eee;border-radius:6px">Cancel</button>
 </div>
 </div>
 
-<p style="text-align:center;color:gray;font-size:12px;padding:20px">HATTIZON v1.0 Live - 10 Crore Traffic Ready - Built by Pramod</p>
+<script>
+let defaultListings=[
+{title:"500K Gaming YouTube Channel",cat:"YouTube",info:"Monetized | 50M Views",price:"₹1,80,000",img:"https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=500"},
+{title:"Food Delivery App",cat:"App",info:"5k Downloads | Source Code",price:"₹2,50,000",img:"https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500"},
+{title:"1M Fashion Insta Page",cat:"Instagram",info:"High Engagement",price:"₹1,20,000",img:"https://images.unsplash.com/photo-1611262588024-d12430b98920?w=500"}
+];
+
+let allListings = JSON.parse(localStorage.getItem('hattizon_listings') || 'null') || defaultListings;
+
+function render(){
+let html="";
+allListings.forEach(l=>{
+html+=`<div class="card"><img src="${l.img}"><h3>${l.title}</h3><p>${l.cat} - ${l.info}</p><p class="price">${l.price}</p><p>✅ Escrow Protected</p><button class="btn" style="width:100%">Buy Now</button></div>`
+});
+document.getElementById('listings').innerHTML=html;
+}
+function openModal(){document.getElementById('sellModal').style.display='flex'}
+function closeModal(){document.getElementById('sellModal').style.display='none'}
+function addListing(){
+let t=document.getElementById('title').value;
+let c=document.getElementById('category').value;
+let f=document.getElementById('followers').value;
+let p=document.getElementById('price').value;
+let img=document.getElementById('image').value || "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=500";
+if(!t||!p){alert("Title aur Price bharo");return}
+allListings.unshift({title:t,cat:c,info:f,price:"₹"+p,img:img});
+localStorage.setItem('hattizon_listings',JSON.stringify(allListings));
+closeModal();render();alert("Congrats! Aapki listing LIVE ho gayi hai!");
+}
+render();
+</script>
 </body>
 </html>
