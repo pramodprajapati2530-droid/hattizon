@@ -1,51 +1,69 @@
-<!DOCTYPE html>
-<html><head><meta charset="UTF-8">
-<title>HATTIZON - LIVE</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-body{font-family:system-ui;background:#f5f7fa;margin:0;padding:10px}
-.header{background:#131921;color:#fff;padding:18px;text-align:center;font-size:22px;font-weight:bold}
-.card{background:#fff;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 3px 12px rgba(0,0,0,.08)}
-.card img{width:100%;height:200px;object-fit:cover;border-radius:10px}
-.btn{background:#febd69;border:none;padding:12px;border-radius:10px;font-weight:bold;width:100%;cursor:pointer}
-.btn-wa{background:#25D366;color:#fff}
-input,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px}
-</style></head>
-<body>
-<div class="header">🟢 HATTIZON - LIVE MARKETPLACE</div>
-<div class="card" style="border:2px solid #febd69">
-<h3>🔥 Sell Your Asset</h3>
-<input id="title" placeholder="Title ex: 150k Insta Page">
-<select id="category"><option>YouTube</option><option>Instagram</option><option>Website</option><option>Domain</option></select>
-<input id="info" placeholder="Details">
-<input id="price" placeholder="Price">
-<input id="img" placeholder="Image URL https://...">
-<input id="wa" placeholder="WhatsApp 9198xxxxxxx">
-<button class="btn" onclick="sellNow()">List Now - Go LIVE 🚀</button>
-<p id="status" style="color:green"></p>
-</div>
-<div id="listingBox">Loading live listings...</div>
-<script>
-const SUPABASE_URL='https://cywtcbeeamrfqpqqnyaa.supabase.co';
-const SUPABASE_KEY='sb_publishable_2C2dXyF99cuR0gL6SZgCuw_wy8dp2YP';
-const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-async function loadListings(){
- const {data,error}=await supabaseClient.from('listings').select('*').order('created_at',{ascending:false});
- const box=document.getElementById('listingBox');
- if(error){box.innerHTML='Error: '+error.message;return}
- if(!data.length){box.innerHTML='No listings yet';return}
- box.innerHTML='';
- data.forEach(l=>{
-  box.innerHTML+=`<div class="card"><img src="${l.img||'https://via.placeholder.com/400x200?text=HATTIZON'}"><h3>${l.title}</h3><p>${l.category} | ${l.info}</p><h2>₹${l.price}</h2><a href="https://wa.me/${l.whatsapp}" target="_blank"><button class="btn btn-wa">WhatsApp</button></a></div>`;
- });
+"use client";
+import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+const categories = ["YouTube", "Instagram", "Website", "Domain", "App", "Business"];
+
+export default function Home() {
+  const [listings, setListings] = useState<any[]>([]);
+  const [form, setForm] = useState({ title: "", category: "Instagram", price: "", whatsapp: "", image_url: "", description: "" });
+
+  const fetchListings = async () => {
+    const { data } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
+    if (data) setListings(data);
+  };
+
+  useEffect(() => { fetchListings(); }, []);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const { error } = await supabase.from("listings").insert([{
+      title: form.title,
+      category: form.category,
+      price: parseInt(form.price),
+      whatsapp: form.whatsapp,
+      description: form.description,
+    }]);
+    if (!error) {
+      alert("Listing added!");
+      setForm({ title: "", category: "Instagram", price: "", whatsapp: "", image_url: "", description: "" });
+      fetchListings();
+    } else { alert(error.message); }
+  };
+
+  return (
+    <main className="p-4 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">🔥 HATTIZON - Digital Assets Marketplace</h1>
+      
+      <div className="border-2 border-orange-200 p-4 rounded-xl mb-8 bg-orange-50">
+        <h2 className="font-bold mb-3 flex items-center gap-2">🔥 Sell Your Asset</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <input required placeholder="Title - ex: instagram page 7k followers" className="p-2 border rounded" value={form.title} onChange={e=>setForm({...form, title: e.target.value})} />
+          <select className="p-2 border rounded" value={form.category} onChange={e=>setForm({...form, category: e.target.value})}>
+            {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input required type="number" placeholder="Price ₹" className="p-2 border rounded" value={form.price} onChange={e=>setForm({...form, price: e.target.value})} />
+          <input placeholder="Image URL https://..." className="p-2 border rounded" value={form.image_url} onChange={e=>setForm({...form, image_url: e.target.value})} />
+          <input required placeholder="WhatsApp 9198xxxxxx" className="p-2 border rounded" value={form.whatsapp} onChange={e=>setForm({...form, whatsapp: e.target.value})} />
+          <textarea placeholder="Description" className="p-2 border rounded" value={form.description} onChange={e=>setForm({...form, description: e.target.value})} />
+          <button className="bg-orange-400 p-3 rounded font-bold">List Now</button>
+        </form>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {listings.map((l) => (
+          <div key={l.id} className="border p-3 rounded-lg">
+            <h3 className="font-bold">{l.title}</h3>
+            <p className="text-sm text-gray-600">{l.category} - ₹{l.price}</p>
+            <a href={`https://wa.me/${l.whatsapp}`} target="_blank" className="text-green-600 text-sm">Chat on WhatsApp</a>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
 }
-async function sellNow(){
- const d={title:title.value,category:category.value,info:info.value,price:price.value,img:img.value,whatsapp:wa.value};
- if(!d.title||!d.price||!d.whatsapp){alert('Fill Title,Price,WhatsApp');return}
- status.innerText='Uploading...';
- const {error}=await supabaseClient.from('listings').insert([d]);
- if(error){alert(error.message)}else{status.innerText='✅ LIVE HO GAYA!';loadListings()}
-}
-loadListings();
-</script></body></html>
