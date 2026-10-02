@@ -1,75 +1,51 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>HATTIZON - Buy & Sell Digital Assets</title>
+<html><head><meta charset="UTF-8">
+<title>HATTIZON - LIVE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0}
-header{background:#000;color:#fff;padding:15px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-header h1{margin:0;color:#ffcc00}
-.btn{background:#ffcc00;color:#000;padding:10px 18px;border:none;border-radius:6px;font-weight:bold;cursor:pointer}
-.container{padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
-.card{background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-.card img{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#eee}
-.price{color:green;font-weight:bold;font-size:18px}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:20}
-.modal-content{background:#fff;padding:20px;border-radius:12px;width:90%;max-width:400px;max-height:90vh;overflow:auto}
-input,select,textarea{width:100%;padding:10px;margin:8px 0;border:1px solid #ccc;border-radius:6px;box-sizing:border-box}
-</style>
-</head>
+body{font-family:system-ui;background:#f5f7fa;margin:0;padding:10px}
+.header{background:#131921;color:#fff;padding:18px;text-align:center;font-size:22px;font-weight:bold}
+.card{background:#fff;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 3px 12px rgba(0,0,0,.08)}
+.card img{width:100%;height:200px;object-fit:cover;border-radius:10px}
+.btn{background:#febd69;border:none;padding:12px;border-radius:10px;font-weight:bold;width:100%;cursor:pointer}
+.btn-wa{background:#25D366;color:#fff}
+input,select{width:100%;padding:12px;margin:7px 0;border:1px solid #ddd;border-radius:10px}
+</style></head>
 <body>
-<header>
-<h1>HATTIZON</h1>
-<button class="btn" onclick="openModal()">+ Sell Asset</button>
-</header>
-
-<div class="container" id="listings"></div>
-
-<div class="modal" id="sellModal">
-<div class="modal-content">
-<h2>List Your Asset</h2>
-<input id="title" placeholder="Title - ex: 500K Gaming YouTube">
-<select id="category"><option>YouTube Channel</option><option>Instagram Page</option><option>Website / App</option><option>Domain</option></select>
-<input id="followers" placeholder="Followers / Revenue - ex: 500K Subs, $200/mo">
-<input id="price" placeholder="Price - ex: 180000" type="number">
-<input id="image" placeholder="Image Link (optional) - paste imgur link">
-<textarea id="desc" placeholder="Description"></textarea>
-<input id="whatsapp" placeholder="Your WhatsApp Number">
-<button class="btn" style="width:100%" onclick="addListing()">List Now - Go Live</button>
-<button onclick="closeModal()" style="width:100%;margin-top:8px;padding:10px;border:none;background:#eee;border-radius:6px">Cancel</button>
+<div class="header">🟢 HATTIZON - LIVE MARKETPLACE</div>
+<div class="card" style="border:2px solid #febd69">
+<h3>🔥 Sell Your Asset</h3>
+<input id="title" placeholder="Title ex: 150k Insta Page">
+<select id="category"><option>YouTube</option><option>Instagram</option><option>Website</option><option>Domain</option></select>
+<input id="info" placeholder="Details">
+<input id="price" placeholder="Price">
+<input id="img" placeholder="Image URL https://...">
+<input id="wa" placeholder="WhatsApp 9198xxxxxxx">
+<button class="btn" onclick="sellNow()">List Now - Go LIVE 🚀</button>
+<p id="status" style="color:green"></p>
 </div>
-</div>
-
+<div id="listingBox">Loading live listings...</div>
 <script>
-let defaultListings=[
-{title:"500K Gaming YouTube Channel",cat:"YouTube",info:"Monetized | 50M Views",price:"₹1,80,000",img:"https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=500"},
-{title:"Food Delivery App",cat:"App",info:"5k Downloads | Source Code",price:"₹2,50,000",img:"https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500"},
-{title:"1M Fashion Insta Page",cat:"Instagram",info:"High Engagement",price:"₹1,20,000",img:"https://images.unsplash.com/photo-1611262588024-d12430b98920?w=500"}
-];
-
-let allListings = JSON.parse(localStorage.getItem('hattizon_listings') || 'null') || defaultListings;
-
-function render(){
-let html="";
-allListings.forEach(l=>{
-html+=`<div class="card"><img src="${l.img}"><h3>${l.title}</h3><p>${l.cat} - ${l.info}</p><p class="price">${l.price}</p><p>✅ Escrow Protected</p><button class="btn" style="width:100%">Buy Now</button></div>`
-});
-document.getElementById('listings').innerHTML=html;
+const SUPABASE_URL='https://cywtcbeeamrfqpqqnyaa.supabase.co';
+const SUPABASE_KEY='sb_publishable_2C2dXyF99cuR0gL6SZgCuw_wy8dp2YP';
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+async function loadListings(){
+ const {data,error}=await supabaseClient.from('listings').select('*').order('created_at',{ascending:false});
+ const box=document.getElementById('listingBox');
+ if(error){box.innerHTML='Error: '+error.message;return}
+ if(!data.length){box.innerHTML='No listings yet';return}
+ box.innerHTML='';
+ data.forEach(l=>{
+  box.innerHTML+=`<div class="card"><img src="${l.img||'https://via.placeholder.com/400x200?text=HATTIZON'}"><h3>${l.title}</h3><p>${l.category} | ${l.info}</p><h2>₹${l.price}</h2><a href="https://wa.me/${l.whatsapp}" target="_blank"><button class="btn btn-wa">WhatsApp</button></a></div>`;
+ });
 }
-function openModal(){document.getElementById('sellModal').style.display='flex'}
-function closeModal(){document.getElementById('sellModal').style.display='none'}
-function addListing(){
-let t=document.getElementById('title').value;
-let c=document.getElementById('category').value;
-let f=document.getElementById('followers').value;
-let p=document.getElementById('price').value;
-let img=document.getElementById('image').value || "https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=500";
-if(!t||!p){alert("Title aur Price bharo");return}
-allListings.unshift({title:t,cat:c,info:f,price:"₹"+p,img:img});
-localStorage.setItem('hattizon_listings',JSON.stringify(allListings));
-closeModal();render();alert("Congrats! Aapki listing LIVE ho gayi hai!");
+async function sellNow(){
+ const d={title:title.value,category:category.value,info:info.value,price:price.value,img:img.value,whatsapp:wa.value};
+ if(!d.title||!d.price||!d.whatsapp){alert('Fill Title,Price,WhatsApp');return}
+ status.innerText='Uploading...';
+ const {error}=await supabaseClient.from('listings').insert([d]);
+ if(error){alert(error.message)}else{status.innerText='✅ LIVE HO GAYA!';loadListings()}
 }
-render();
-</script>
-</body>
-</html>
+loadListings();
+</script></body></html>
